@@ -1,0 +1,40 @@
+{
+  "asset_focus": [
+    "equities",
+    "options",
+    "crypto"
+  ],
+  "research_themes": [
+    "empirical asset pricing anomalies and post-publication decay",
+    "options volatility risk premia, skew, term structure, dealer/gamma effects, 0DTE market structure",
+    "market microstructure, liquidity, transaction costs, and market impact",
+    "event studies and short/medium horizon systematic strategies",
+    "crypto market structure, funding, carry, momentum/reversal, cross-exchange effects",
+    "machine learning for return prediction, uncertainty, regimes, NLP, and portfolio construction",
+    "portfolio construction, covariance estimation, risk parity, Kelly/fractional-Kelly, drawdown control"
+  ],
+  "arxiv_queries": [
+    "cat:q-fin.TR AND (market microstructure OR trading OR liquidity)",
+    "cat:q-fin.PM AND (portfolio optimization OR covariance OR risk)",
+    "cat:q-fin.ST AND (volatility OR regime OR forecasting)",
+    "cat:q-fin.CP AND (asset pricing OR return prediction OR anomalies)",
+    "(crypto OR cryptocurrency OR bitcoin) AND (market microstructure OR return prediction OR funding)"
+  ],
+  "quality_filters": {
+    "prefer": [
+      "clear signal definition",
+      "realistic costs/frictions",
+      "out-of-sample validation",
+      "simple baselines",
+      "public or obtainable data"
+    ],
+    "reject_or_downrank": [
+      "unsupported win-rate claims",
+      "vague indicators",
+      "no sample size",
+      "no costs",
+      "lookahead/leakage risk",
+      "institutional-only without adaptable proxy"
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "briefing_name": "Daily Market Intelligence Briefing",
+  "timezone": "America/New_York",
+  "preferred_length": "concise-but-useful",
+  "news_lookback": {
+    "default_hours": 24,
+    "monday_or_after_market_holiday_hours": 72,
+    "include_older_context_if_still_market_moving": true,
+    "older_context_rule": "Only include older news when it is necessary context for a current catalyst, market reaction, contract, regulatory action, earnings event, or thesis change. Clearly label it as context, not fresh news."
+  },
+  "always_watch": [],
+  "priority_watch": [],
+  "avoid_stock_of_the_day": true,
+  "avoid_rotating_theme_focus": true,
+  "focus_categories": [
+    "mergers, acquisitions, divestitures, IPO/SPAC activity, activist stakes, strategic investments, joint ventures, and major partnerships",
+    "new technological innovations, product launches, commercialization milestones, AI/compute, semiconductors, robotics/autonomy, space/satellite, defense tech, cybersecurity, energy/grid/nuclear, biotech/medtech, fintech/payments, manufacturing, and materials",
+    "government contracts, grants, procurement awards, public-private programs, defense/aerospace awards, infrastructure/chips/energy funding, and agency budget allocations",
+    "regulatory and legal catalysts such as approvals, bans, antitrust, export controls, tariffs, sanctions, CFIUS, FDA/FTC/DOJ/SEC actions, and congressional activity with company exposure",
+    "supply-chain and real-world operating developments affecting SpaceX/Starlink and satellite suppliers, defense/aerospace suppliers, energy infrastructure, shipping/logistics, labor, cyber, commodities, manufacturing capacity, and cloud/data-center capex",
+    "watchlist-specific company news, filings, earnings/guidance, analyst actions, contracts, partnerships, product launches, legal/regulatory issues, and competitive changes"
+  ],
+  "deprioritized_topics": [
+    "routine Federal Reserve or interest-rate commentary unless tied to a concrete company/sector catalyst",
+    "generic market/index tone such as whether the market is neutral, mixed, bullish, or bearish",
+    "broad macro summaries without a clear link to public companies, sectors, suppliers, customers, or competitors"
+  ],
+  "market_impact_topics_always_scan": [
+    "large mergers, acquisitions, divestitures, IPO/SPAC activity, activist stakes, strategic investments, joint ventures, and major partnerships",
+    "new technological innovations and product/commercial breakthroughs in AI, semiconductors, robotics, autonomy, cloud/data-center infrastructure, space/satellite, defense tech, cybersecurity, energy/grid/nuclear, biotech/medtech, fintech/payments, manufacturing, and materials",
+    "large government contracts, procurement awards, grants, public-private programs, agency budget allocations, and defense/aerospace awards",
+    "regulatory, antitrust, FDA, FTC, DOJ, SEC, CFIUS, congressional, export-control, tariff, sanctions, and approval/ban actions with clear company or sector exposure",
+    "major private-company activity that affects public markets, including SpaceX, Starlink, OpenAI, Anthropic, Stripe, Databricks, and defense/AI suppliers",
+    "supply-chain changes affecting semiconductors, aerospace, defense, energy, shipping, autos, manufacturing, and cloud infrastructure",
+    "major earnings, guidance, layoffs, bankruptcies, credit events, legal outcomes, cyber incidents, labor actions, and operational disruptions"
+  ],
+  "output_sections": [
+    "TL;DR",
+    "Corporate catalysts",
+    "M&A, partnerships, and strategic investments",
+    "Technology, product, and innovation signals",
+    "Government contracts, procurement, and regulation",
+    "Supply chain / real-world market drivers",
+    "Watchlist updates",
+    "Catalyst table",
+    "Upcoming catalysts",
+    "Risks to watch",
+    "Sources"
+  ],
+  "source_policy": {
+    "prefer": [
+      "official company releases and investor relations",
+      "SEC filings and government releases",
+      "procurement, grant, and agency award notices",
+      "Reuters/AP/major business press",
+      "credible industry publications for defense, space, semiconductors, energy, supply chains, AI, cybersecurity, and biotech"
+    ],
+    "require_source_links_for_material_claims": true,
+    "label_rumors_or_unverified_claims": true,
+    "do_not_invent_prices_or_percent_moves": true
+  },
+  "discord": {
+    "style": "mobile-friendly markdown",
+    "max_messages": 2,
+    "include_disclaimer": true
+  }
+}

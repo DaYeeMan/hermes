@@ -1,0 +1,41 @@
+{
+  "description": "RSS/Atom feeds used as low-confidence discovery leads for quant research. Feed items are not evidence until validated.",
+  "max_entries_per_feed": 8,
+  "feeds": [
+    {
+      "name": "Quantocracy",
+      "url": "https://quantocracy.com/feed/",
+      "category": "practitioner_aggregator"
+    },
+    {
+      "name": "Alpha Architect",
+      "url": "https://alphaarchitect.com/feed/",
+      "category": "empirical_asset_pricing_practitioner"
+    },
+    {
+      "name": "Robot Wealth",
+      "url": "https://robotwealth.com/feed/",
+      "category": "reproducible_practitioner"
+    },
+    {
+      "name": "Quantpedia",
+      "url": "https://quantpedia.com/feed/",
+      "category": "strategy_research_aggregator"
+    },
+    {
+      "name": "arXiv q-fin trading and market microstructure",
+      "url": "https://export.arxiv.org/rss/q-fin.TR",
+      "category": "academic_preprint"
+    },
+    {
+      "name": "arXiv q-fin portfolio management",
+      "url": "https://export.arxiv.org/rss/q-fin.PM",
+      "category": "academic_preprint"
+    },
+    {
+      "name": "arXiv q-fin statistical finance",
+      "url": "https://export.arxiv.org/rss/q-fin.ST",
+      "category": "academic_preprint"
+    }
+  ]
+}

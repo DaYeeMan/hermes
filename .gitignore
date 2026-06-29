@@ -1,0 +1,35 @@
+# Secrets / local Hermes runtime config
+.env
+.env.*
+config.yaml
+auth.json
+*.key
+*.pem
+*.token
+
+# Hermes runtime state (if this workspace is ever used as HERMES_HOME)
+state.db
+state.db-*
+sessions/
+logs/
+cron/output/
+cron/*.lock
+*.lock
+
+# Python/cache/build noise
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Quant research live runtime state; keep state.example.json instead
+quant-research/state/state.json
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.tmp
+*.bak

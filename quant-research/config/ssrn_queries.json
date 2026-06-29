@@ -1,0 +1,14 @@
+{
+  "description": "SSRN is query-driven only: use these as discovery queries, do not bulk-ingest or scrape blindly.",
+  "queries": [
+    "site:ssrn.com asset pricing anomaly decay transaction costs",
+    "site:ssrn.com volatility risk premium options retail transaction costs",
+    "site:ssrn.com earnings announcement drift options systematic strategy",
+    "site:ssrn.com crypto market microstructure return predictability funding",
+    "site:ssrn.com machine learning asset pricing out of sample",
+    "site:ssrn.com short interest borrow cost anomaly returns",
+    "site:ssrn.com option implied volatility realized volatility risk premium",
+    "site:ssrn.com factor investing post publication decay"
+  ],
+  "triage_rule": "Classify SSRN working papers as Plausible but untested unless replicated, published, highly cited, or clearly foundational."
+}

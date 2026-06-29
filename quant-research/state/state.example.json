@@ -1,0 +1,6 @@
+{
+  "last_run_date": null,
+  "seen_item_ids": {},
+  "last_registry_snapshot_hash": null,
+  "notes": "Copy to state/state.json for local runtime state. Do not commit state/state.json."
+}
