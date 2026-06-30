@@ -39,10 +39,10 @@ Daily workflow:
 6. Explicitly identify outdated models/strategies: post-publication decay, crowding, obsolete market structure, unrealistic costs, inaccessible data/execution, or complexity not justified versus simple baselines.
 7. For each high-signal item, compare against existing registry/source/framework notes and identify whether it reinforces, contradicts, supplies missing validation, transfers across asset classes/domains, or combines into a framework candidate.
 8. Preserve foundational/important research even if not directly tradable; label it foundational rather than rejecting it.
-9. Write a dated markdown note under: C:/Users/enson/Documents/Obsidian Vault/Quant Research/06 Research Reviews/YYYY-MM-DD Daily Quant Research Review.md including a Literature Connections / Framework Leads section.
+9. Write each run as a distinct timestamped markdown note under: C:/Users/enson/Documents/Obsidian Vault/Quant Research/06 Research Reviews/YYYY-MM-DD HHMM Daily Quant Research Review.md including a Literature Connections / Framework Leads section. Example: 2026-06-30 1435 Daily Quant Research Review.md. Do not overwrite or merge into an existing same-day review note. If a timestamp collision occurs, append -2, -3, etc.
 10. If a candidate is strong enough, create or update a source note under 01 Sources and/or a strategy idea note under 02 Strategy Ideas using templates under _System/Templates.
 11. If a multi-paper or cross-domain framework candidate emerges, update C:/Users/enson/Documents/Obsidian Vault/Quant Research/07 Literature Synthesis/Framework Candidate Registry.md or Open Research Questions. Do not force a framework when evidence is weak.
-12. Update Research Review Index with a wikilink to today's note.
+12. Update Research Review Index with a wikilink to the specific timestamped review note created by this run.
 13. Update C:/Users/enson/Documents/Obsidian Vault/Quant Research/01 Research Candidate Registry.md for every candidate worth tracking, reclassified, newly rejected as a recurring bad idea, or flagged as outdated. Search the registry first and update existing rows rather than duplicating concepts.
 14. If a candidate becomes coding-ready, update C:/Users/enson/Documents/Obsidian Vault/Quant Research/09 Coding-Ready Backtest Queue.md.
 
