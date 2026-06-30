@@ -11,7 +11,8 @@
     "event studies and short/medium horizon systematic strategies",
     "crypto market structure, funding, carry, momentum/reversal, cross-exchange effects",
     "machine learning for return prediction, uncertainty, regimes, NLP, and portfolio construction",
-    "portfolio construction, covariance estimation, risk parity, Kelly/fractional-Kelly, drawdown control"
+    "portfolio construction, covariance estimation, risk parity, Kelly/fractional-Kelly, drawdown control",
+    "cross-paper framework synthesis and literature connection discovery"
   ],
   "arxiv_queries": [
     "cat:q-fin.TR AND (market microstructure OR trading OR liquidity)",
@@ -20,13 +21,21 @@
     "cat:q-fin.CP AND (asset pricing OR return prediction OR anomalies)",
     "(crypto OR cryptocurrency OR bitcoin) AND (market microstructure OR return prediction OR funding)"
   ],
+  "adjacent_domain_queries": [
+    "(cat:stat.ML OR cat:stat.ME) AND (conformal prediction OR uncertainty quantification OR multiple testing)",
+    "(cat:cs.LG OR cat:stat.ML) AND (graph neural network OR representation learning OR online learning) AND (time series OR forecasting)",
+    "(cat:econ.EM OR cat:econ.GN OR cat:q-fin.EC) AND (causal inference OR treatment effects OR panel data)",
+    "(cat:math.OC OR cat:cs.SY) AND (robust control OR stochastic optimization OR decision making under uncertainty)",
+    "(cat:physics.soc-ph OR cat:nlin.AO OR cat:physics.data-an) AND (network contagion OR critical transitions OR complex systems)"
+  ],
   "quality_filters": {
     "prefer": [
       "clear signal definition",
       "realistic costs/frictions",
       "out-of-sample validation",
       "simple baselines",
-      "public or obtainable data"
+      "public or obtainable data",
+      "explicit link to existing candidate or framework"
     ],
     "reject_or_downrank": [
       "unsupported win-rate claims",
@@ -34,7 +43,8 @@
       "no sample size",
       "no costs",
       "lookahead/leakage risk",
-      "institutional-only without adaptable proxy"
+      "institutional-only without adaptable proxy",
+      "outside-domain metaphor without falsifiable market translation"
     ]
   }
 }

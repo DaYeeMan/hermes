@@ -31,14 +31,14 @@ Hermes cron requires executable scripts to live inside the active Hermes profile
 
 The source script emits JSON with RSS/feed leads, arXiv query leads, SSRN query links, asset focus, and quality filters. These are discovery inputs only, not evidence.
 
-### weekly-quant-strategy-decay-review
+### weekly-quant-strategy-decay-review / synthesis review
 
 - Cron job ID: `810de174cd0f`
 - Schedule: `0 9 * * 0`
 - AppData wrapper: `quant_research_decay_inputs.py`
 - Source script: `scripts/quant_research_decay_inputs.py`
 
-The source script emits JSON context for registry/coding queue/decay review.
+The source script emits JSON context for registry/coding queue/decay review plus framework synthesis, source-note concept overlaps, open questions, and adjacent-domain method leads.
 
 ## Runtime state
 
