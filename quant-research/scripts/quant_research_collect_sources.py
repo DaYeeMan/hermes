@@ -5,17 +5,26 @@ This script is source-controlled in C:/Users/enson/.hermes/quant-research.
 Hermes cron executes a tiny AppData wrapper which delegates here.
 
 Outputs JSON to stdout. Feed/arXiv/SSRN/adjacent-domain items are discovery
-leads only, not evidence. It also maintains lightweight local seen-state in
+leads only, not evidence. It maintains lightweight local seen-state in
 state/state.json so the agent can distinguish new leads from recurring ones.
+
+RSS/practitioner feeds are collected through blogwatcher-cli when available.
+The old stdlib feed parsing path remains only as a degraded fallback and is
+flagged explicitly in the JSON so the LLM does not mistake fallback output for
+the intended persistent feed-monitor state.
 """
 from __future__ import annotations
 
 import hashlib
 import json
+import os
+import re
+import shutil
+import subprocess
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from email.utils import parsedate_to_datetime
 from pathlib import Path
 
@@ -23,6 +32,7 @@ ROOT = Path(__file__).resolve().parents[1]
 CONFIG = ROOT / 'config'
 STATE_DIR = ROOT / 'state'
 STATE_PATH = STATE_DIR / 'state.json'
+BLOGWATCHER_DB = STATE_DIR / 'blogwatcher-cli.db'
 VAULT_ROOT = Path('C:/Users/enson/Documents/Obsidian Vault/Quant Research')
 REGISTRY = VAULT_ROOT / '01 Research Candidate Registry.md'
 FRAMEWORK_REGISTRY = VAULT_ROOT / '07 Literature Synthesis' / 'Framework Candidate Registry.md'
@@ -81,7 +91,7 @@ def stable_id(*parts: str) -> str:
 def mark_seen(item: dict, bucket: str, state: dict) -> dict:
     seen = state.setdefault('seen_item_ids', {}).setdefault(bucket, [])
     first_seen = state.setdefault('seen_item_first_seen', {})
-    item_id = item.get('id') or stable_id(item.get('title', ''), item.get('link', ''))
+    item_id = item.get('id') or stable_id(item.get('title', ''), item.get('link', '') or item.get('url', ''))
     is_new = item_id not in seen
     if is_new:
         seen.append(item_id)
@@ -92,6 +102,7 @@ def mark_seen(item: dict, bucket: str, state: dict) -> dict:
 
 
 def parse_feed(url: str, *, max_entries: int) -> tuple[list[dict], str | None]:
+    """Degraded fallback feed parser used only when blogwatcher-cli is missing/failing."""
     try:
         req = urllib.request.Request(url, headers={'User-Agent': 'HermesQuantResearch/1.0'})
         with urllib.request.urlopen(req, timeout=25) as resp:
@@ -122,6 +133,112 @@ def parse_feed(url: str, *, max_entries: int) -> tuple[list[dict], str | None]:
         return [], f'{type(exc).__name__}: {exc}'
 
 
+def find_blogwatcher_cli() -> str | None:
+    candidates = [
+        os.environ.get('BLOGWATCHER_CLI'),
+        shutil.which('blogwatcher-cli'),
+        shutil.which('blogwatcher-cli.exe'),
+        str(Path.home() / '.local' / 'bin' / 'blogwatcher-cli.exe'),
+        str(Path.home() / '.local' / 'bin' / 'blogwatcher-cli'),
+    ]
+    for c in candidates:
+        if c and Path(c).exists():
+            return c
+    return None
+
+
+def run_cmd(args: list[str], timeout: int = 60) -> dict:
+    try:
+        p = subprocess.run(args, text=True, capture_output=True, timeout=timeout, encoding='utf-8', errors='replace')
+        return {'ok': p.returncode == 0, 'returncode': p.returncode, 'stdout': p.stdout, 'stderr': p.stderr}
+    except Exception as exc:
+        return {'ok': False, 'returncode': None, 'stdout': '', 'stderr': f'{type(exc).__name__}: {exc}'}
+
+
+def ensure_blogwatcher_blogs(cli: str, feed_cfg: dict) -> list[dict]:
+    BLOGWATCHER_DB.parent.mkdir(parents=True, exist_ok=True)
+    results = []
+    for feed in feed_cfg.get('feeds', []):
+        name = feed.get('name') or feed.get('url')
+        url = feed.get('url')
+        if not url:
+            continue
+        # Use the feed URL as the canonical blog URL. blogwatcher-cli enforces URL uniqueness,
+        # and several arXiv categories share the same site homepage.
+        args = [cli, '--db', str(BLOGWATCHER_DB), 'add', name, url, '--feed-url', url]
+        res = run_cmd(args, timeout=45)
+        duplicate = 'already exists' in (res.get('stderr') or '')
+        results.append({'name': name, 'url': url, 'ok': res['ok'] or duplicate, 'already_exists': duplicate, 'stderr': res.get('stderr', '').strip()})
+    return results
+
+
+def parse_blogwatcher_articles(text: str, state: dict) -> list[dict]:
+    articles = []
+    current = None
+    title_re = re.compile(r'^\s*\[(?P<id>\d+)\]\s+\[(?P<status>[^\]]+)\]\s+(?P<title>.+?)\s*$')
+    for line in text.splitlines():
+        m = title_re.match(line)
+        if m:
+            if current:
+                articles.append(current)
+            current = {'blogwatcher_id': m.group('id'), 'status': m.group('status'), 'title': m.group('title')}
+            continue
+        if current is None:
+            continue
+        stripped = line.strip()
+        if stripped.startswith('Blog:'):
+            current['blog'] = stripped.split(':', 1)[1].strip()
+        elif stripped.startswith('URL:'):
+            current['link'] = stripped.split(':', 1)[1].strip()
+        elif stripped.startswith('Published:'):
+            current['published'] = stripped.split(':', 1)[1].strip()
+        elif stripped.startswith('Categories:'):
+            current['categories'] = [x.strip() for x in stripped.split(':', 1)[1].split(',') if x.strip()]
+    if current:
+        articles.append(current)
+    for item in articles:
+        item['id'] = stable_id(item.get('title', ''), item.get('link', ''))
+        mark_seen(item, 'blogwatcher-cli:articles', state)
+    return articles
+
+
+def collect_blogwatcher(feed_cfg: dict, state: dict) -> dict:
+    cli = find_blogwatcher_cli()
+    if not cli:
+        return {'available': False, 'error': 'blogwatcher-cli executable not found', 'entries': []}
+    ensure = ensure_blogwatcher_blogs(cli, feed_cfg)
+    scan = run_cmd([cli, '--db', str(BLOGWATCHER_DB), 'scan', '--workers', '4'], timeout=180)
+    since = (datetime.now(timezone.utc) - timedelta(days=14)).date().isoformat()
+    articles = run_cmd([cli, '--db', str(BLOGWATCHER_DB), 'articles', '--all', '--since', since], timeout=60)
+    entries = parse_blogwatcher_articles(articles.get('stdout', ''), state) if articles.get('ok') else []
+    return {
+        'available': True,
+        'cli_path': cli,
+        'db_path': str(BLOGWATCHER_DB),
+        'since': since,
+        'ensure_blogs': ensure,
+        'scan_ok': scan.get('ok'),
+        'scan_stdout': scan.get('stdout', '')[-5000:],
+        'scan_stderr': scan.get('stderr', '')[-2000:],
+        'articles_ok': articles.get('ok'),
+        'articles_stdout_excerpt': articles.get('stdout', '')[:6000],
+        'articles_stderr': articles.get('stderr', '')[-2000:],
+        'entries': entries,
+        'note': 'RSS/practitioner feeds came from persistent blogwatcher-cli state. Treat entries as discovery leads only, not evidence.',
+    }
+
+
+def collect_fallback_feeds(feed_cfg: dict, state: dict) -> list[dict]:
+    max_entries = int(feed_cfg.get('max_entries_per_feed', 8))
+    feeds_out = []
+    for feed in feed_cfg.get('feeds', []):
+        entries, error = parse_feed(feed['url'], max_entries=max_entries)
+        bucket = 'feed:' + feed.get('name', feed['url'])
+        entries = [mark_seen(e, bucket, state) for e in entries]
+        feeds_out.append({**feed, 'ok': error is None, 'error': error, 'entries': entries, 'degraded_fallback': True})
+    return feeds_out
+
+
 def arxiv_api_url(query: str, max_results: int = 8) -> str:
     params = urllib.parse.urlencode({
         'search_query': query,
@@ -150,13 +267,8 @@ def collect():
     ssrn_cfg = read_json(CONFIG / 'ssrn_queries.json', {})
     state = read_json(STATE_PATH, {'seen_item_ids': {}, 'seen_item_first_seen': {}})
 
-    max_entries = int(feed_cfg.get('max_entries_per_feed', 8))
-    feeds_out = []
-    for feed in feed_cfg.get('feeds', []):
-        entries, error = parse_feed(feed['url'], max_entries=max_entries)
-        bucket = 'feed:' + feed.get('name', feed['url'])
-        entries = [mark_seen(e, bucket, state) for e in entries]
-        feeds_out.append({**feed, 'ok': error is None, 'error': error, 'entries': entries})
+    blogwatcher = collect_blogwatcher(feed_cfg, state)
+    fallback_feeds = [] if blogwatcher.get('available') and blogwatcher.get('articles_ok') else collect_fallback_feeds(feed_cfg, state)
 
     arxiv_leads = collect_arxiv_queries(watch_cfg.get('arxiv_queries', []), 'arxiv', state, max_results=8)
     adjacent_leads = collect_arxiv_queries(watch_cfg.get('adjacent_domain_queries', []), 'adjacent_arxiv', state, max_results=5)
@@ -186,7 +298,8 @@ def collect():
             'open_research_questions': safe_text(OPEN_QUESTIONS, limit=4000),
             'recent_source_note_inventory': source_note_inventory(max_notes=12),
         },
-        'rss_feed_leads': feeds_out,
+        'blogwatcher_feed_leads': blogwatcher,
+        'rss_feed_leads': fallback_feeds,
         'arxiv_query_leads': arxiv_leads,
         'adjacent_domain_arxiv_leads': adjacent_leads,
         'ssrn_query_leads': ssrn_leads,
@@ -195,8 +308,9 @@ def collect():
             'state_exists': STATE_PATH.exists(),
             'seen_item_buckets': sorted((state.get('seen_item_ids') or {}).keys()),
             'new_vs_seen_semantics': 'Each entry has seen_before and first_seen_at fields based on local state/state.json.',
+            'blogwatcher_db': str(BLOGWATCHER_DB),
         },
-        'instruction': 'Treat all leads as discovery inputs. Validate before adding to Obsidian. Use existing_library_context to find cross-paper/framework connections; do not treat outside-domain leads as trading evidence unless translated into falsifiable market hypotheses.',
+        'instruction': 'Treat all leads as discovery inputs. Validate before adding to Obsidian. Use blogwatcher_feed_leads as the primary persistent RSS/practitioner feed context; rss_feed_leads appears only when blogwatcher-cli is unavailable/failing. Use existing_library_context to find cross-paper/framework connections; do not treat outside-domain leads as trading evidence unless translated into falsifiable market hypotheses.',
     }
 
 
