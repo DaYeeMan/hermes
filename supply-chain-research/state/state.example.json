@@ -1,0 +1,6 @@
+{
+  "last_run_at": null,
+  "run_count": 0,
+  "seen_event_keys": {},
+  "notes": "Live state is stored in state/state.json and should not be committed."
+}

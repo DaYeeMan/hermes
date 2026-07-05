@@ -25,8 +25,15 @@ __pycache__/
 .venv/
 venv/
 
-# Quant research live runtime state; keep state.example.json instead
+# Research-profile live runtime state; keep state.example.json instead
 quant-research/state/state.json
+supply-chain-research/state/state.json
+
+# Local research-profile databases
+quant-research/state/*.db
+quant-research/state/*.db-*
+supply-chain-research/state/*.db
+supply-chain-research/state/*.db-*
 
 # OS/editor noise
 .DS_Store
